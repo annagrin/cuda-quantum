@@ -8,11 +8,10 @@
 
 // REQUIRES: nvcc
 
-// RUN: (nvcc -c -Xcompiler -fPIC -std=c++17 %p/tensor.cu -o %t.o && \
-// RUN: nvq++ -std=c++17 --enable-mlir %s %t.o -L `dirname $(which nvcc)`/../lib64 -lcudart -o %t.x && echo "Success") | \
-// RUN: FileCheck %s
-
-// CHECK-LABEL: Success
+// clang-format off
+// RUN: nvcc -I runtime -c -Xcompiler -fPIC %cpp_std %p/tensor.cu -o %t.o
+// RUN: nvq++ %cpp_std --enable-mlir %s %t.o -L `dirname $(which nvcc)`/../lib64 -lcudart -o %t.x
+// clang-format on
 
 #include <cudaq.h>
 

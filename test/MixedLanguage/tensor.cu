@@ -6,14 +6,6 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-// REQUIRES: nvcc
-
-// RUN: (nvcc -I runtime -c -Xcompiler -fPIC %cpp_std %p/tensor.cu -o %t.o && \
-// RUN: nvq++ %cpp_std --enable-mlir %s %t.o -L `dirname $(which nvcc)`/../lib64 -lcudart -o %t && echo "Success") | \
-// RUN: FileCheck %s
-
-// CHECK-LABEL: Success
-
 #include "cudaq/utils/tensor.h"
 #include <algorithm>
 #include <cassert>
