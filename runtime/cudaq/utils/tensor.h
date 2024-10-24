@@ -13,6 +13,14 @@
 
 namespace cudaq {
 
+// Forward declarations.
+template <typename T>
+class tensor;
+template <typename T>
+tensor<T> operator*(const tensor<T> &, const tensor<T> &);
+template <typename T>
+tensor<T> operator+(const tensor<T> &, const tensor<T> &);
+
 /// @brief A tensor class implementing the PIMPL idiom.
 ///
 /// The flattened data is stored in row-major layout, where the strides grow
@@ -67,6 +75,9 @@ public:
                                                   std::string(ScalarAsString),
                                               data, shape)
                 .release())) {}
+
+  /// Construct a `tensor` from a `tensor_impl` using move semantics.
+  tensor(details::tensor_impl<Scalar> *impl) { pimpl.swap(impl); }
 
   /// @brief Get the rank of the tensor
   /// @return The rank of the tensor
@@ -159,6 +170,23 @@ public:
   const scalar_type *data() const { return pimpl->data(); }
 
   void dump() const { pimpl->dump(); }
+
+  template <typename T>
+  friend tensor<T> operator*(const tensor<T> &, const tensor<T> &);
+  template <typename T>
+  friend tensor<T> operator+(const tensor<T> &, const tensor<T> &);
 };
+
+/// Multiplication of two tensors.
+template <typename T>
+tensor<T> operator*(const tensor<T> &left, const tensor<T> &right) {
+  return (*left.pimpl) * (*right.pimpl);
+}
+
+/// Addition of two tensors.
+template <typename T>
+tensor<T> operator+(const tensor<T> &left, const tensor<T> &right) {
+  return (*left.pimpl) + (*right.pimpl);
+}
 
 } // namespace cudaq
