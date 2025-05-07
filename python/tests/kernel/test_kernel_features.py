@@ -470,7 +470,35 @@ def test_simple_return_types():
     assert ret == 8
 
     @cudaq.kernel
-    def qernel(a: float, b: float) -> float:
+    def kernel(a: int, b: int) -> np.int32:
+        return a * b
+
+    ret = kernel(2, 4)
+    assert ret == 8
+
+    @cudaq.kernel
+    def kernel(a: int, b: int) -> np.int64:
+        return a * b
+
+    ret = kernel(2, 4)
+    assert ret == 8
+
+    @cudaq.kernel
+    def kernel(a: float, b: float) -> float:
+        return a * b
+
+    ret = kernel(2, 4)
+    assert np.isclose(ret, 8., atol=1e-12)
+
+    @cudaq.kernel
+    def kernel(a: float, b: float) -> np.float32:
+        return a * b
+
+    ret = kernel(2, 4)
+    assert np.isclose(ret, 8., atol=1e-12)
+
+    @cudaq.kernel
+    def kernel(a: float, b: float) -> np.float64:
         return a * b
 
     ret = kernel(2, 4)
@@ -487,6 +515,9 @@ def test_simple_return_types():
         return True
 
     assert boolKernel()
+
+def test_return_aggregate_types():
+    print(1)
 
 
 def test_list_creation():

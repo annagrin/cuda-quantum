@@ -1176,9 +1176,14 @@ class PyASTBridge(ast.NodeVisitor):
                 "CUDA-Q does not support allocating lists of zero size (no dynamic memory allocation)",
                 node)
 
+        print(f'Node: {node}')
+        print(f'value: {node.value}')
+        print(f'Targets: {node.targets}')
+        print(f'Target: {node.targets[0]}')
         # Retain the variable name for potential children (like `mz(q, registerName=...)`)
         if len(node.targets) == 1 and not isinstance(node.targets[0],
                                                      ast.Tuple):
+            print(f'Simple')
             # Handle simple `var = expr`
             if isinstance(node.targets[0], ast.Name):
                 self.currentAssignVariableName = str(node.targets[0].id)
@@ -1219,7 +1224,11 @@ class PyASTBridge(ast.NodeVisitor):
                 return
 
         else:
-            self.visit(node.value)
+            if isinstance(node.value, ast.Tuple):
+                for ele in node.value.elts:
+                    self.visit(ele)
+            else:
+                self.visit(node.value)
 
         if len(self.valueStack) == 0:
             self.emitFatalError("invalid assignment detected.", node)
@@ -1230,12 +1239,13 @@ class PyASTBridge(ast.NodeVisitor):
         # Can assign a, b, c, = Tuple...
         # or single assign a = something
         if isinstance(node.targets[0], ast.Tuple):
-            assert len(self.valueStack) == len(node.targets[0].elts)
+            targets = node.targets[0].elts
+            assert len(self.valueStack) == len(targets)
             varValues = [
-                self.popValue() for _ in range(len(node.targets[0].elts))
+                self.popValue() for _ in range(len(targets))
             ]
             varValues.reverse()
-            varNames = [name.id for name in node.targets[0].elts]
+            varNames = [name.id for name in targets]
         else:
             varValues = [self.popValue()]
             varNames = [node.targets[0].id]
